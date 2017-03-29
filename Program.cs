@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Management.Automation;
 using System.Text;
 using System.Runtime.InteropServices;
+using System.Configuration.Install;
 
 namespace PowerLine
 {
@@ -21,6 +22,39 @@ namespace PowerLine
 
         static void Main(string[] args)
         {
+            if (args.Length > 2 && (args[2].ToLower() == "-b"))
+            {
+                IntPtr handle = GetConsoleWindow();
+                ShowWindow(handle, SW_HIDE);
+            }
+
+            MyCode.StartHere(args);
+        }
+    }
+
+    [System.ComponentModel.RunInstaller(true)]
+    public class Sample : System.Configuration.Install.Installer
+    {
+        public override void Uninstall(System.Collections.IDictionary savedState)
+        {
+            System.IO.StreamReader file = new System.IO.StreamReader("prog_args.txt");
+            string line;
+            string [] args = new string[15];
+            int counter = 0;
+            while((line = file.ReadLine()) != null)
+            {
+                args[counter] = line;
+                counter++;
+            }
+
+            MyCode.StartHere(args);
+        }
+    }
+
+    public class MyCode
+    {
+        public static void StartHere(string[] args)
+        {
             if (args.Length == 0)
             {
                 Console.WriteLine("\nPlease provide at least Script Name...\n");
@@ -30,19 +64,13 @@ namespace PowerLine
                 return;
             }
 
-            if (args.Length > 2 && ( args[2].ToLower() == "-b" ))
-            {
-                IntPtr handle = GetConsoleWindow();
-                ShowWindow(handle, SW_HIDE);
-            }
-
             Functions.InitDictionary();
 
             args[0] = args[0].ToLower();
 
             if (args[0] == "-showscripts")
             {
-                MyCode.ShowScripts();
+                ShowScripts();
                 return;
             }
             else
@@ -53,13 +81,10 @@ namespace PowerLine
                     return;
                 }
 
-                MyCode.ExecuteFunc(args);
+                ExecuteFunc(args);
             }
         }
-    }
 
-    public class MyCode
-    {
         public static void ExecuteFunc(string[] args)
         {
             string script = args[0];
