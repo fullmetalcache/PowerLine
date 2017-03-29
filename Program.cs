@@ -68,7 +68,7 @@ namespace PowerLine
 
             if (args.Length > 1)
             {
-                Console.WriteLine(args[1]);
+                Console.WriteLine("\nCommand Invoked: args[1]");
                 string parameters = "\n" + args[1] + "\n";
                 command += parameters;
             }
