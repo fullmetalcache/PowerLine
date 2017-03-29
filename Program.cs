@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Management.Automation.Runspaces;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
+using System.Management.Automation.Host;
 using System.Text;
 using System.Runtime.InteropServices;
 
