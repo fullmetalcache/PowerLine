@@ -8,13 +8,43 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+		x64|Any CPU = x64|Any CPU
+		x64|x64 = x64|x64
+		x64|x86 = x64|x86
+		x86|Any CPU = x86|Any CPU
+		x86|x64 = x86|x64
+		x86|x86 = x86|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.Debug|x64.ActiveCfg = Debug|x64
+		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.Debug|x64.Build.0 = Debug|x64
+		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.Debug|x86.ActiveCfg = Debug|x86
+		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.Debug|x86.Build.0 = Debug|x86
 		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.Release|x64.ActiveCfg = Release|x64
+		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.Release|x64.Build.0 = Release|x64
+		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.Release|x86.ActiveCfg = Release|x86
+		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.Release|x86.Build.0 = Release|x86
+		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.x64|Any CPU.ActiveCfg = x64|Any CPU
+		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.x64|Any CPU.Build.0 = x64|Any CPU
+		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.x64|x64.ActiveCfg = x64|x64
+		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.x64|x64.Build.0 = x64|x64
+		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.x64|x86.ActiveCfg = x64|x86
+		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.x64|x86.Build.0 = x64|x86
+		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.x86|Any CPU.ActiveCfg = x86|Any CPU
+		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.x86|Any CPU.Build.0 = x86|Any CPU
+		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.x86|x64.ActiveCfg = x86|x64
+		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.x86|x64.Build.0 = x86|x64
+		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.x86|x86.ActiveCfg = x86|x86
+		{B96678C5-61AB-4087-B559-CCD9D0AACC43}.x86|x86.Build.0 = x86|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
