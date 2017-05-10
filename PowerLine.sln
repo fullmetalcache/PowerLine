@@ -7,8 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerLine", "PowerLine.cspr
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DAEE41B1-694D-4D96-BAB4-E68319115BEC}"
 	ProjectSection(SolutionItems) = preProject
-		bin\x64\x64\PowerLine.exe = bin\x64\x64\PowerLine.exe
-		bin\x86\x86\PowerLine.exe = bin\x86\x86\PowerLine.exe
+		bin\x64\Release\PowerLine.exe = bin\x64\Release\PowerLine.exe
+		bin\x86\Release\PowerLine.exe = bin\x86\Release\PowerLine.exe
 		bin\x64\x64\prog_args.txt = bin\x64\x64\prog_args.txt
 		bin\x86\x86\prog_args.txt = bin\x86\x86\prog_args.txt
 	EndProjectSection
