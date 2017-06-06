@@ -5,3 +5,6 @@ C:\Windows\Microsoft.NET\Framework64\v2.0.50727\csc.exe /r:C:\Windows\assembly\G
 
 //x86 system
 C:\Windows\Microsoft.NET\Framework\v2.0.50727\csc.exe /r:C:\Windows\assembly\GAC_MSIL\System.Management.Automation\1.0.0.0__31bf3856ad364e35\System.Management.Automation.dll /unsafe /platform:x86 /target:exe /out:powerline.exe .\*.cs
+
+//MSBuild, be sure to copy the C:\Windows\Microsoft.NET\Framework64\v4.0.30319\Microsoft.Build.Tasks.v4.0.dll file to C:\Program Files (x86)\MSBuild\14.0\Bin\amd64\Microsoft.Build.Tasks.v4.0.dll
+C:\Users\fmc\Source\Repos\powerline>C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe C:\Users\fmc\Source\Repos\powerline\PowerLine.sln /t:rebuild /p:PlatformTarget=x64

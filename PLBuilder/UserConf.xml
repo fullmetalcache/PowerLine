@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project>
+  <!-- x86, x64, or Both -->
+  <Architecture> x86 </Architecture>
+  
+  <Scripts>
+    <!-- Full URLS pointing to PowerShell Scripts on Github, Bitbucket, Your Server, Wherever -->
+    <Remote>
+      
+    </Remote>
+
+    <!-- Fully Qualified Path to Your Local Scripts -->
+    <Local>
+      
+    </Local>
+  
+  </Scripts>
+  
+</Project>
+
