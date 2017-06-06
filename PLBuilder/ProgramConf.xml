@@ -1,6 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Project>
-  <!-- -->
+  
   <DictionaryFile>CleanVars.txt</DictionaryFile>
-  <SolutionFile>..\powerline\PowerLine.sln</SolutionFile>
+  
+  <SolutionFile>Test.sln</SolutionFile>
+
 </Project>
