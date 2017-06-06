@@ -2,6 +2,8 @@
 using CommandLine.Text;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Xml;
 
@@ -13,9 +15,13 @@ namespace PLBuilder
           HelpText = "Provide your own Dictionary File.")]
         public string DictionaryFile { get; set; }
 
-        [Option('s', "solutionFile", Required = false,
+        [Option('o', "outputFolder", Required = false,
+            HelpText = "Specify an output folder.")]
+        public string OutputFolder { get; set; }
+
+        [Option('s', "projectFile", Required = false,
           HelpText = "Provide your own Solution File.")]
-        public string SolutionFile { get; set; }
+        public string ProjectFile { get; set; }
 
         [HelpOption]
         public string GetUsage()
@@ -27,15 +33,17 @@ namespace PLBuilder
         }
 
     }
+
     class PLBuilderMain
     {
         static private XmlTextReader _programConf;
         static private XmlTextReader _userConf;
+        static private string _outputFolder;
 
         static void Main(string[] args)
         {
             string dictionaryFile = "";
-            string solutionFile = "";
+            string projectFile = "";
 
             _programConf = new XmlTextReader("ProgramConf.xml");
             _userConf = new XmlTextReader("UserConf.xml");
@@ -44,9 +52,13 @@ namespace PLBuilder
             _programConf.Read();
             dictionaryFile = _programConf.Value;
 
-            _programConf.ReadToFollowing("SolutionFile");
+            _programConf.ReadToFollowing("OutputFolder");
             _programConf.Read();
-            solutionFile = _programConf.Value;
+            _outputFolder = _programConf.Value;
+
+            _programConf.ReadToFollowing("ProjectFile");
+            _programConf.Read();
+            projectFile = _programConf.Value;
 
             //Overwrite defaults and get other runtime options
             var options = new Options();
@@ -57,16 +69,176 @@ namespace PLBuilder
                     dictionaryFile = options.DictionaryFile;
                 }
 
-                if (options.SolutionFile != null)
+                if (options.OutputFolder != null)
                 {
-                    solutionFile = options.SolutionFile;
+                    _outputFolder = options.OutputFolder;
+                }
+
+                if (options.ProjectFile != null)
+                {
+                    projectFile = options.ProjectFile;
+                }
+            }
+
+            Console.WriteLine(projectFile);
+
+            var fileNames = GetFileNames(projectFile, !projectFile.Contains(":\\"));
+
+            foreach(var name in fileNames)
+            {
+                Console.WriteLine(name);
+            }
+
+            var remScripts = getRemoteScriptList();
+
+            foreach(var s in remScripts)
+            {
+                Console.WriteLine(s);
+            }
+
+            var localScripts = getRemoteScriptList();
+
+            writeFunctionFile(remScripts, localScripts);
+
+        }
+
+        static List<string> GetFileNames(string projectFile, bool relative)
+        {
+            List<string> fileNames = new List<string>();
+
+            if (relative)
+            {
+                string folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                projectFile = Path.GetFullPath(Path.Combine(folder, @projectFile));
+            }
+
+            Console.WriteLine(projectFile);
+
+            var fin = System.IO.File.ReadAllLines(projectFile);
+            int lastIdx = projectFile.LastIndexOf('\\');
+            projectFile = projectFile.Substring(0, lastIdx + 1);
+
+            foreach (var line in fin)
+            {
+                if(line.Contains(".cs"))
+                {
+                    fileNames.Add( projectFile + line.Split('"')[1]);
+                }
+            }
+
+            DirectoryCopy(projectFile, _outputFolder, true);
+
+            return fileNames;
+        }
+
+        //https://msdn.microsoft.com/en-us/library/bb762914(v=vs.110).aspx
+        static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
+        {
+            // Get the subdirectories for the specified directory.
+            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
+
+            if (!dir.Exists)
+            {
+                throw new DirectoryNotFoundException(
+                    "Source directory does not exist or could not be found: "
+                    + sourceDirName);
+            }
+
+            DirectoryInfo[] dirs = dir.GetDirectories();
+            // If the destination directory doesn't exist, create it.
+            if (!Directory.Exists(destDirName))
+            {
+                Directory.CreateDirectory(destDirName);
+            }
+
+            // Get the files in the directory and copy them to the new location.
+            FileInfo[] files = dir.GetFiles();
+            foreach (FileInfo file in files)
+            {
+                string temppath = Path.Combine(destDirName, file.Name);
+                file.CopyTo(temppath,true);
+            }
+
+            // If copying subdirectories, copy them and their contents to new location.
+            if (copySubDirs)
+            {
+                foreach (DirectoryInfo subdir in dirs)
+                {
+                    string temppath = Path.Combine(destDirName, subdir.Name);
+                    DirectoryCopy(subdir.FullName, temppath, copySubDirs);
                 }
             }
         }
 
-       // static string[] GetFileNames(string solutionFile)
-       // {
-            //string[] fileNames = new string();
-       // }
+        static List<string> getRemoteScriptList()
+        {
+            List<string> scripts = new List<string>();
+
+            while (_userConf.ReadToFollowing("Remote"))
+            {
+                _userConf.Read();
+                scripts.Add(_userConf.Value);
+            }
+
+            return scripts;
+        }
+
+        static List<string> getLocalScriptList()
+        {
+            List<string> scripts = new List<string>();
+
+            while (_userConf.ReadToFollowing("Local"))
+            {
+                _userConf.Read();
+                scripts.Add(_userConf.Value);
+            }
+
+            return scripts;
+        }
+
+        static void writeFunctionFile(List<string> remScripts, List<string> localScripts)
+        {
+            //make this better at some point
+            var fin = System.IO.File.ReadAllLines(_outputFolder + "Functions.cs");
+
+            StreamWriter fout = new StreamWriter(_outputFolder + "Functions.cs");
+
+            int idx = 0;
+
+            foreach(var line in fin)
+            {
+                idx++;
+                if(line.Contains("#"))
+                {
+                    break;
+                }
+
+                fout.WriteLine(line);
+            }
+
+            //write the XOR key
+            fout.WriteLine("DKey = " + GetLetter() + ";");
+
+            foreach(var script in remScripts)
+            {
+                fout.WriteLine(script);
+            }
+
+            for(int i = idx; i < fin.Length; i++)
+            {
+                fout.WriteLine(fin[i]);
+            }
+
+            fout.Close();
+        }
+
+        //https://stackoverflow.com/questions/15249138/pick-random-char
+        public static char GetLetter()
+        {
+            string chars = "$%#@!*abcdefghijklmnopqrstuvwxyz1234567890?;:ABCDEFGHIJKLMNOPQRSTUVWXYZ^&";
+            Random rand = new Random();
+            int num = rand.Next(0, chars.Length - 1);
+            return chars[num];
+        }
     }
 }

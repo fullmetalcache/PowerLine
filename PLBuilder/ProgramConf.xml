@@ -2,7 +2,9 @@
 <Project>
   
   <DictionaryFile>CleanVars.txt</DictionaryFile>
-  
-  <SolutionFile>Test.sln</SolutionFile>
+
+  <OutputFolder>..\..\..\PLWTF\</OutputFolder>
+
+  <ProjectFile>..\..\..\PowerLineTemplate\PowerLineTemplate.csproj</ProjectFile>
 
 </Project>

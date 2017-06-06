@@ -5,14 +5,14 @@
   
   <Scripts>
     <!-- Full URLS pointing to PowerShell Scripts on Github, Bitbucket, Your Server, Wherever -->
-    <Remote>
-      
-    </Remote>
-
+    
+    <!-- PowerView -->
+    <Remote>https://raw.githubusercontent.com/PowerShellEmpire/PowerTools/master/PowerView/powerview.ps1</Remote>
+    
+    <!-- PowerUp -->
+    <Remote>https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Privesc/PowerUp.ps1</Remote>
     <!-- Fully Qualified Path to Your Local Scripts -->
-    <Local>
-      
-    </Local>
+    <!-- <Local></Local> -->
   
   </Scripts>
   
