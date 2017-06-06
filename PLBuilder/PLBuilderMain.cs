@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Text;
 using System.Xml;
 
@@ -39,11 +40,16 @@ namespace PLBuilder
         static private XmlTextReader _programConf;
         static private XmlTextReader _userConf;
         static private string _outputFolder;
+        static private List<String> _dictionary;
+        static private List<String> _usedWords;
+        static private Random _randGen; 
 
         static void Main(string[] args)
         {
             string dictionaryFile = "";
             string projectFile = "";
+
+            _randGen = new Random();
 
             _programConf = new XmlTextReader("ProgramConf.xml");
             _userConf = new XmlTextReader("UserConf.xml");
@@ -98,8 +104,21 @@ namespace PLBuilder
 
             var localScripts = getRemoteScriptList();
 
+            buildDictionary(dictionaryFile);
+
             writeFunctionFile(remScripts, localScripts);
 
+        }
+
+        static void buildDictionary(string dictionaryFile)
+        {
+            _dictionary = new List<string>();
+            _usedWords = new List<string>();
+
+            foreach(var currWord in File.ReadAllLines(dictionaryFile))
+            {
+                _dictionary.Add(currWord);
+            }
         }
 
         static List<string> GetFileNames(string projectFile, bool relative)
@@ -114,7 +133,7 @@ namespace PLBuilder
 
             Console.WriteLine(projectFile);
 
-            var fin = System.IO.File.ReadAllLines(projectFile);
+            var fin = File.ReadAllLines(projectFile);
             int lastIdx = projectFile.LastIndexOf('\\');
             projectFile = projectFile.Substring(0, lastIdx + 1);
 
@@ -208,7 +227,7 @@ namespace PLBuilder
             foreach(var line in fin)
             {
                 idx++;
-                if(line.Contains("#"))
+                if(line.Contains("$$"))
                 {
                     break;
                 }
@@ -217,11 +236,36 @@ namespace PLBuilder
             }
 
             //write the XOR key
-            fout.WriteLine("DKey = " + GetLetter() + ";");
+            byte dKey = Convert.ToByte( GetLetter() );
+            fout.WriteLine("\t\t\tdKey = \'" + (char) dKey + "\';");
 
             foreach(var script in remScripts)
             {
-                fout.WriteLine(script);
+                var scriptName = script.Substring(script.LastIndexOf('/') + 1);
+                using (var client = new WebClient())
+                {
+                    client.DownloadFile(new Uri(script), _outputFolder +  scriptName);
+                    Byte[] bytes = File.ReadAllBytes(_outputFolder + scriptName);
+
+                    //XOR "encrypt"
+                    for(int i = 0; i < bytes.Length; i++)
+                    {
+                        bytes[i] ^= dKey;
+                    }
+
+                    string b64XorScript = Convert.ToBase64String(bytes);
+
+                    //Lop off PS1 or other file extension from scriptname
+                    Byte[] moduleName = Encoding.UTF8.GetBytes(scriptName.Split('.')[0]);
+                    Byte[] outModuleName = new Byte[moduleName.Length];
+
+                    for (int i =0; i < moduleName.Length; i++)
+                    {
+                        outModuleName[i] = (byte)(moduleName[i] ^ dKey);
+                    }
+
+                    fout.WriteLine("\t\t\tFuncs.Add(\"" + Convert.ToBase64String(outModuleName) + "\",\"" + b64XorScript + "\");");
+                }
             }
 
             for(int i = idx; i < fin.Length; i++)
@@ -230,15 +274,50 @@ namespace PLBuilder
             }
 
             fout.Close();
+            //string cmdStr = "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\MSBuild.exe /b ";
+            string currPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+            string fullPath = Path.Combine(currPath, _outputFolder + "PowerLine.sln");
+            //cmdStr += " /t:rebuild /p:PlatformTarget = x64";
+            //Console.WriteLine(cmdStr);
+
+            Process cmd = new Process();
+            cmd.StartInfo.FileName = "cmd.exe";
+            cmd.StartInfo.RedirectStandardInput = true;
+           // cmd.StartInfo.RedirectStandardOutput = true;
+           // cmd.StartInfo.RedirectStandardError = true;
+            //cmd.StartInfo.CreateNoWindow = true;
+            cmd.StartInfo.UseShellExecute = false;
+            cmd.Start();
+            //cmd.StandardInput.WriteLine(@"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe " + fullPath + @" /t:rebuild /p:PlatformTarget=x64");
+            cmd.StandardInput.WriteLine(@"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe C:\Users\fmc\Source\Repos\powerline\PLWTF\PowerLine.sln /t:rebuild /p:PlatformTarget=x64");
+            cmd.StandardInput.Flush();
+            cmd.StandardInput.Close();
+            cmd.WaitForExit();
+          //  Console.WriteLine(cmd.StandardOutput.ReadToEnd());
+          //  Console.WriteLine(cmd.StandardError.ReadToEnd());
+
         }
 
         //https://stackoverflow.com/questions/15249138/pick-random-char
         public static char GetLetter()
         {
             string chars = "$%#@!*abcdefghijklmnopqrstuvwxyz1234567890?;:ABCDEFGHIJKLMNOPQRSTUVWXYZ^&";
-            Random rand = new Random();
-            int num = rand.Next(0, chars.Length - 1);
+            int num = _randGen.Next(0, chars.Length - 1);
             return chars[num];
+        }
+
+        //Gets a random word from the dictionary and makes sure it isnt already in use
+        public static string GetWord()
+        {
+            while (true)
+            {
+                int num = _randGen.Next(0, _dictionary.Count - 1);
+                if ( !_usedWords.Contains( _dictionary[num] ) )
+                {
+                    _usedWords.Add(_dictionary[num]);
+                    return _dictionary[num];
+                }
+            }
         }
     }
 }

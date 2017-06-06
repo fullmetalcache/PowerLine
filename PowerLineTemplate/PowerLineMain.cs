@@ -64,16 +64,16 @@ namespace PowerLine
 
             Functions.InitDictionary();
 
-            args[0] = args[0].ToLower();
-
-            if (args[0] == "-showscripts")
+            if (args[0].ToLower() == "-showscripts")
             {
                 ShowScripts();
                 return;
             }
             else
             {
-                if (!Functions.Funcs.ContainsKey(args[0]))
+                Console.WriteLine(encodeString(args[0]));
+
+                if (!Functions.Funcs.ContainsKey(encodeString(args[0])))
                 {
                     Console.WriteLine("Script: " + args[0] + " is not currently present in the program");
                     return;
@@ -85,8 +85,8 @@ namespace PowerLine
 
         public static void ExecuteFunc(string[] args)
         {
-            string script = args[0];
-            string command = Encoding.UTF8.GetString(Convert.FromBase64String(Functions.Funcs[script]));
+            string script = encodeString(args[0]);
+            string command = decodeString(Functions.Funcs[script]);
 
             if (args.Length > 1)
             {
@@ -133,8 +133,33 @@ namespace PowerLine
             foreach (KeyValuePair<string, string> kvp in Functions.Funcs)
             {
                 Console.WriteLine("");
-                Console.WriteLine(kvp.Key);
+                Console.WriteLine(decodeString(kvp.Key));
             }
+        }
+
+        public static string decodeString(string enc)
+        {
+            byte[] decoded = Convert.FromBase64String(enc);
+
+            for (int i = 0; i < decoded.Length; i++)
+            {
+                decoded[i] ^= (byte)Functions.dKey;
+            }
+
+            return Encoding.UTF8.GetString(decoded);
+        }
+
+        public static string encodeString(string dec)
+        {
+            //Lop off PS1 or other file extension from scriptname
+            Byte[] moduleName = Encoding.UTF8.GetBytes(dec);
+            Byte[] outModuleName = new Byte[moduleName.Length];
+
+            for (int i = 0; i < moduleName.Length; i++)
+            {
+                outModuleName[i] = (byte)(moduleName[i] ^ Functions.dKey);
+            }
+            return Convert.ToBase64String(outModuleName);
         }
     }
 
