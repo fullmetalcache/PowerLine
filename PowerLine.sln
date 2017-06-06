@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DAEE41B1-694D-4D96-BAB4-E68319115BEC}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\Downloads\PowerLine-staging\PowerLine-staging\build.bat = ..\..\..\Downloads\PowerLine-staging\PowerLine-staging\build.bat
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PLBuilder", "PLBuilder\PLBuilder.csproj", "{59C98397-4550-45E9-9473-91DB25C5CFD7}"
 EndProject
