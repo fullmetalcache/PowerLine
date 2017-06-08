@@ -79,6 +79,7 @@
     <Content Include="UserConf.xml" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="build.bat" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
