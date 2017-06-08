@@ -298,12 +298,24 @@ namespace PLBuilder
             PrintNorm("Building PowerLine.exe");
 
             string currPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
-            string fullPath = Path.Combine(Path.GetDirectoryName(functionsFile), "PowerLineTemplate.sln");
+            string fullPath = "";
+
+            string buildTool = "";
+
+            if(File.Exists(@"C:\Windows\Microsoft.NET\Framework646\v2.0.50727\MSBuild.exe"))
+            {
+                buildTool = @"C:\Windows\Microsoft.NET\Framework646\v2.0.50727\MSBuild.exe";
+                fullPath = Path.Combine(Path.GetDirectoryName(functionsFile), "PowerLineTemplateWin7.pln.sln");
+            } else if(File.Exists(@"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe"))
+            {
+                buildTool = @"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe";
+                fullPath = Path.Combine(Path.GetDirectoryName(functionsFile), "PowerLineTemplateWin10.pln.sln");
+            }
 
             Process cmd = new Process();
             cmd.StartInfo.FileName = "cmd.exe";
             cmd.StartInfo.CreateNoWindow = true;
-            cmd.StartInfo.Arguments = "/c " + @"C:\Windows\Microsoft.NET\Framework64\v2.0.50727\MSBuild.exe " + fullPath + @" /t:rebuild /p:Configuration=Release /p:Platform=x64";
+            cmd.StartInfo.Arguments = "/c " + buildTool + " " + fullPath + @" /t:rebuild /p:Configuration=Release /p:Platform=x64";
             cmd.StartInfo.UseShellExecute = false;
             cmd.Start();
             cmd.WaitForExit();
