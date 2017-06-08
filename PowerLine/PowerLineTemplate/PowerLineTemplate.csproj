@@ -82,6 +82,9 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="packages\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)packages\Fody.2.0.0\build\portable-net+sl+win+wpa+wp\Fody.targets" Condition="Exists('$(SolutionDir)packages\Fody.2.0.0\build\portable-net+sl+win+wpa+wp\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
