@@ -71,8 +71,6 @@ namespace PowerLine
             }
             else
             {
-                Console.WriteLine(encodeString(args[0]));
-
                 if (!Functions.Funcs.ContainsKey(encodeString(args[0])))
                 {
                     Console.WriteLine("Script: " + args[0] + " is not currently present in the program");

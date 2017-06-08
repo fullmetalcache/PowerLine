@@ -1,10 +1,11 @@
-﻿//using CommandLine;
-//using CommandLine.Text;
-//using System;
-//using System.Collections.Generic;
-//using System.IO;
-//using System.Text;
-//using System.Xml;
+﻿
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Net;
+using System.Text;
+using System.Xml;
 
 namespace PLBuilder
 {
@@ -31,13 +32,15 @@ namespace PLBuilder
 
     class PLBuilderMain
     {
+
+
         static private XmlTextReader _programConf;
         static private XmlTextReader _userConf;
         static private string _saveDir;
         static private List<String> _savedFiles;
         static private List<String> _dictionary;
         static private List<String> _usedWords;
-        static private Random _randGen; 
+        static private Random _randGen;
 
         static void Main(string[] args)
         {
@@ -75,20 +78,20 @@ namespace PLBuilder
             PrintNorm("Getting Template Source Files From:" + projectFile);
 
             PrintNorm("Saving Template Files");
-            var fileNames = GetFileNames(projectFile, !projectFile.Contains(":\\"));
+            List<string> fileNames = GetFileNames(projectFile, !projectFile.Contains(":\\"));
 
             string functionsFile = "";
-            foreach(var name in fileNames)
+            foreach (string name in fileNames)
             {
-                if(name.Contains("Functions.cs"))
+                if (name.Contains("Functions.cs"))
                 {
                     functionsFile = name;
                     break;
                 }
             }
 
-            var remScripts = getRemoteScriptList();
-            var localScripts = getRemoteScriptList();
+            List<string> remScripts = getRemoteScriptList();
+            List<string> localScripts = getRemoteScriptList();
 
             PrintNorm("Building Obfuscation Dictionary From: " + dictionaryFile);
             buildDictionary(dictionaryFile);
@@ -114,7 +117,7 @@ namespace PLBuilder
             _dictionary = new List<string>();
             _usedWords = new List<string>();
 
-            foreach(var currWord in File.ReadAllLines(dictionaryFile))
+            foreach (string currWord in File.ReadAllLines(dictionaryFile))
             {
                 _dictionary.Add(currWord);
             }
@@ -131,14 +134,14 @@ namespace PLBuilder
                 projectFile = Path.GetFullPath(Path.Combine(folder, @projectFile));
             }
 
-            var fin = File.ReadAllLines(projectFile);
+            string[] fin = File.ReadAllLines(projectFile);
 
-            string projectFolder = Path.GetDirectoryName(projectFile);
+            System.String projectFolder = Path.GetDirectoryName(projectFile);
             _saveDir = Path.Combine(projectFolder, "plsave");
 
-            foreach (var line in fin)
+            foreach (string line in fin)
             {
-                if(line.Contains(".cs"))
+                if (line.Contains(".cs"))
                 {
                     string fileNameCurr = line.Split('"')[1];
                     string fileNamePath = Path.Combine(projectFolder, fileNameCurr);
@@ -185,7 +188,7 @@ namespace PLBuilder
             foreach (FileInfo file in files)
             {
                 string temppath = Path.Combine(destDirName, file.Name);
-                file.CopyTo(temppath,true);
+                file.CopyTo(temppath, true);
             }
 
             // If copying subdirectories, copy them and their contents to new location.
@@ -229,16 +232,16 @@ namespace PLBuilder
         {
             //make this better at some point
 
-            var fin = System.IO.File.ReadAllLines(functionsFile);
+            string[] fin = File.ReadAllLines(functionsFile);
 
             StreamWriter fout = new StreamWriter(functionsFile, false);
 
             int idx = 0;
 
-            foreach(var line in fin)
+            foreach (string line in fin)
             {
                 idx++;
-                if(line.Contains("$$$"))
+                if (line.Contains("$$$"))
                 {
                     break;
                 }
@@ -247,42 +250,45 @@ namespace PLBuilder
             }
 
             //write the XOR key
-            byte dKey = Convert.ToByte( GetLetter() );
-            fout.WriteLine("\t\t\tdKey = \'" + (char) dKey + "\';");
+            byte dKey = Convert.ToByte(GetLetter());
+            fout.WriteLine("\t\t\tdKey = \'" + (char)dKey + "\';");
 
             PrintNorm("Importing and Encoding Scripts");
 
-            foreach(var script in remScripts)
+            foreach (string script in remScripts)
             {
-                var scriptName = script.Substring(script.LastIndexOf('/') + 1);
-                using (var client = new WebClient())
+                string scriptName = script.Substring(script.LastIndexOf('/') + 1);
+                using (WebClient client = new WebClient())
                 {
-                    Console.WriteLine("\t" + script + "\r\n");
-                    client.DownloadFile(new Uri(script), scriptName);
-                    Byte[] bytes = File.ReadAllBytes(scriptName);
-
-                    //XOR "encrypt"
-                    for(int i = 0; i < bytes.Length; i++)
+                    using (MemoryStream mStream = new MemoryStream(client.DownloadData(new Uri(script))))
                     {
-                        bytes[i] ^= dKey;
+
+                        Console.WriteLine("\t" + script + "\r\n");
+                        byte[] bytes = mStream.ToArray();
+
+                        //XOR "encrypt"
+                        for (int i = 0; i < bytes.Length; i++)
+                        {
+                            bytes[i] ^= dKey;
+                        }
+
+                        string b64XorScript = Convert.ToBase64String(bytes);
+
+                        //Lop off PS1 or other file extension from scriptname
+                        Byte[] moduleName = Encoding.UTF8.GetBytes(scriptName.Split('.')[0]);
+                        Byte[] outModuleName = new Byte[moduleName.Length];
+
+                        for (int i = 0; i < moduleName.Length; i++)
+                        {
+                            outModuleName[i] = (byte)(moduleName[i] ^ dKey);
+                        }
+
+                        fout.WriteLine("\t\t\tFuncs.Add(\"" + Convert.ToBase64String(outModuleName) + "\",\"" + b64XorScript + "\");");
                     }
-
-                    string b64XorScript = Convert.ToBase64String(bytes);
-
-                    //Lop off PS1 or other file extension from scriptname
-                    Byte[] moduleName = Encoding.UTF8.GetBytes(scriptName.Split('.')[0]);
-                    Byte[] outModuleName = new Byte[moduleName.Length];
-
-                    for (int i =0; i < moduleName.Length; i++)
-                    {
-                        outModuleName[i] = (byte)(moduleName[i] ^ dKey);
-                    }
-
-                    fout.WriteLine("\t\t\tFuncs.Add(\"" + Convert.ToBase64String(outModuleName) + "\",\"" + b64XorScript + "\");");
                 }
             }
 
-            for(int i = idx; i < fin.Length; i++)
+            for (int i = idx; i < fin.Length; i++)
             {
                 fout.WriteLine(fin[i]);
             }
@@ -294,27 +300,22 @@ namespace PLBuilder
             string currPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
             string fullPath = Path.Combine(Path.GetDirectoryName(functionsFile), "PowerLineTemplate.sln");
 
-            Console.Out.Flush();
-
             Process cmd = new Process();
             cmd.StartInfo.FileName = "cmd.exe";
-            cmd.StartInfo.Arguments = "/c " + @"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe " + fullPath + @" /t:rebuild /p:Configuration=Release /p:Platform=x64";
-           // cmd.StartInfo.RedirectStandardOutput = true;
-            //cmd.StartInfo.RedirectStandardError = true;
+            cmd.StartInfo.CreateNoWindow = true;
+            cmd.StartInfo.Arguments = "/c " + @"C:\Windows\Microsoft.NET\Framework64\v2.0.50727\MSBuild.exe " + fullPath + @" /t:rebuild /p:Configuration=Release /p:Platform=x64";
             cmd.StartInfo.UseShellExecute = false;
             cmd.Start();
             cmd.WaitForExit();
 
-            return(cmd.ExitCode == 0);
-            //Console.WriteLine(cmd.StandardOutput.ReadToEnd());
-            //Console.WriteLine(cmd.StandardError.ReadToEnd());
+            return (cmd.ExitCode == 0);
         }
 
         public static void restoreFiles()
         {
             string[] splitVal = new string[] { "$$$" };
-            
-            foreach(var name in _savedFiles)
+
+            foreach (string name in _savedFiles)
             {
                 string destPath = name.Split(splitVal, StringSplitOptions.RemoveEmptyEntries)[0];
                 string srcPath = name.Split(splitVal, StringSplitOptions.RemoveEmptyEntries)[1];
@@ -338,7 +339,7 @@ namespace PLBuilder
             while (true)
             {
                 int num = _randGen.Next(0, _dictionary.Count - 1);
-                if ( !_usedWords.Contains( _dictionary[num] ) )
+                if (!_usedWords.Contains(_dictionary[num]))
                 {
                     _usedWords.Add(_dictionary[num]);
                     return _dictionary[num];
@@ -363,5 +364,5 @@ namespace PLBuilder
 
             Console.ResetColor();
         }
-}
+    }
 }
