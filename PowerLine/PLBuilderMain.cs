@@ -1,35 +1,33 @@
-﻿using CommandLine;
-using CommandLine.Text;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Net;
-using System.Text;
-using System.Xml;
+﻿//using CommandLine;
+//using CommandLine.Text;
+//using System;
+//using System.Collections.Generic;
+//using System.IO;
+//using System.Text;
+//using System.Xml;
 
 namespace PLBuilder
 {
-    class Options
-    {
-        [Option('d', "dictionaryFile", Required = false,
-          HelpText = "Provide your own Dictionary File.")]
-        public string DictionaryFile { get; set; }
+    //class Options
+    //{
+    //    [Option('d', "dictionaryFile", Required = false,
+    //      HelpText = "Provide your own Dictionary File.")]
+    //    public string DictionaryFile { get; set; }
 
-        [Option('s', "projectFile", Required = false,
-          HelpText = "Provide your own Solution File.")]
-        public string ProjectFile { get; set; }
+    //    [Option('s', "projectFile", Required = false,
+    //      HelpText = "Provide your own Solution File.")]
+    //    public string ProjectFile { get; set; }
 
-        [HelpOption]
-        public string GetUsage()
-        {
-            var usage = new StringBuilder();
-            usage.AppendLine("Quickstart Application 1.0");
-            usage.AppendLine("Read user manual for usage instructions...");
-            return usage.ToString();
-        }
+    //    [HelpOption]
+    //    public string GetUsage()
+    //    {
+    //        var usage = new StringBuilder();
+    //        usage.AppendLine("Quickstart Application 1.0");
+    //        usage.AppendLine("Read user manual for usage instructions...");
+    //        return usage.ToString();
+    //    }
 
-    }
+    //}
 
     class PLBuilderMain
     {
@@ -60,19 +58,19 @@ namespace PLBuilder
             projectFile = _programConf.Value;
 
             //Overwrite defaults and get other runtime options
-            var options = new Options();
-            if (Parser.Default.ParseArguments(args, options))
-            {
-                if(options.DictionaryFile != null)
-                {
-                    dictionaryFile = options.DictionaryFile;
-                }
+            //var options = new Options();
+            //if (Parser.Default.ParseArguments(args, options))
+            //{
+            //    if(options.DictionaryFile != null)
+            //    {
+            //        dictionaryFile = options.DictionaryFile;
+            //    }
 
-                if (options.ProjectFile != null)
-                {
-                    projectFile = options.ProjectFile;
-                }
-            }
+            //    if (options.ProjectFile != null)
+            //    {
+            //        projectFile = options.ProjectFile;
+            //    }
+            //}
 
             PrintNorm("Getting Template Source Files From:" + projectFile);
 

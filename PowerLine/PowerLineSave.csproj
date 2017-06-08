@@ -9,10 +9,11 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PowerLine</RootNamespace>
     <AssemblyName>PLBuild</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -59,56 +60,24 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CommandLine, Version=1.9.71.2, Culture=neutral, PublicKeyToken=de6f01bd326f8c32, processorArchitecture=MSIL">
-      <HintPath>$(SolutionDir)packages\CommandLineParser.1.9.71\lib\net40\CommandLine.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="PLBuilderMain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="CleanVars.txt" />
-    <Content Include="packages\CommandLineParser.1.9.71\lib\net35\CommandLine.dll" />
-    <Content Include="packages\CommandLineParser.1.9.71\lib\net35\CommandLine.xml" />
-    <Content Include="packages\CommandLineParser.1.9.71\lib\net40\CommandLine.dll" />
-    <Content Include="packages\CommandLineParser.1.9.71\lib\net40\CommandLine.xml" />
-    <Content Include="packages\CommandLineParser.1.9.71\lib\net45\CommandLine.dll" />
-    <Content Include="packages\CommandLineParser.1.9.71\lib\net45\CommandLine.xml" />
-    <Content Include="packages\CommandLineParser.1.9.71\readme.txt" />
-    <Content Include="packages\Fody.2.0.0\Content\FodyWeavers.xml" />
-    <Content Include="packages\Fody.2.0.0\Fody.dll" />
-    <Content Include="packages\Fody.2.0.0\Fody.pdb" />
-    <Content Include="packages\Fody.2.0.0\FodyCommon.dll" />
-    <Content Include="packages\Fody.2.0.0\FodyCommon.pdb" />
-    <Content Include="packages\Fody.2.0.0\FodyIsolated.dll" />
-    <Content Include="packages\Fody.2.0.0\FodyIsolated.pdb" />
-    <Content Include="packages\Fody.2.0.0\Mono.Cecil.dll" />
-    <Content Include="packages\Fody.2.0.0\Mono.Cecil.Mdb.dll" />
-    <Content Include="packages\Fody.2.0.0\Mono.Cecil.Pdb.dll" />
-    <Content Include="packages\Fody.2.0.0\Mono.Cecil.Rocks.dll" />
     <Content Include="ProgramConf.xml" />
     <Content Include="UserConf.xml" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="build.bat" />
-    <None Include="packages.config" />
-    <None Include="packages\CommandLineParser.1.9.71\CommandLineParser.1.9.71.nupkg" />
-    <None Include="packages\Fody.2.0.0\build\dotnet\Fody.targets" />
-    <None Include="packages\Fody.2.0.0\build\netstandard1.4\Fody.targets" />
-    <None Include="packages\Fody.2.0.0\build\portable-net+sl+win+wpa+wp\Fody.targets" />
-    <None Include="packages\Fody.2.0.0\Fody.2.0.0.nupkg" />
-    <None Include="packages\Fody.2.0.0\Tools\install.ps1" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Reference Include="System">
+      <HintPath>..\..\..\..\..\..\Windows\Microsoft.NET\Framework\v2.0.50727\System.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <!--<Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />-->
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
