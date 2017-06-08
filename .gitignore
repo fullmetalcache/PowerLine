@@ -244,3 +244,13 @@ ModelManifest.xml
 # FAKE - F# Make
 .fake/
 /PowerLineTemplate/PLWTF/Functions.cs
+/PowerLine/powerview.ps1
+/PowerLine/PowerUp.ps1
+/PowerLine/PowerLine.vshost.exe.manifest
+/PowerLine/PowerLine.vshost.exe
+/PowerLine/PLBuild.vshost.exe.manifest
+/PowerLine/PLBuild.vshost.exe
+/PowerLine/PLBuild.exe
+/PowerLine/PowerLineTemplate/Functions.cs
+/PowerLine/PowerLine.exe
+/PowerLine/funcs_save.txt

@@ -16,10 +16,6 @@ namespace PLBuilder
           HelpText = "Provide your own Dictionary File.")]
         public string DictionaryFile { get; set; }
 
-        [Option('o', "outputFolder", Required = false,
-            HelpText = "Specify an output folder.")]
-        public string OutputFolder { get; set; }
-
         [Option('s', "projectFile", Required = false,
           HelpText = "Provide your own Solution File.")]
         public string ProjectFile { get; set; }
@@ -39,7 +35,8 @@ namespace PLBuilder
     {
         static private XmlTextReader _programConf;
         static private XmlTextReader _userConf;
-        static private string _outputFolder;
+        static private string _saveDir;
+        static private List<String> _savedFiles;
         static private List<String> _dictionary;
         static private List<String> _usedWords;
         static private Random _randGen; 
@@ -58,10 +55,6 @@ namespace PLBuilder
             _programConf.Read();
             dictionaryFile = _programConf.Value;
 
-            _programConf.ReadToFollowing("OutputFolder");
-            _programConf.Read();
-            _outputFolder = _programConf.Value;
-
             _programConf.ReadToFollowing("ProjectFile");
             _programConf.Read();
             projectFile = _programConf.Value;
@@ -75,38 +68,46 @@ namespace PLBuilder
                     dictionaryFile = options.DictionaryFile;
                 }
 
-                if (options.OutputFolder != null)
-                {
-                    _outputFolder = options.OutputFolder;
-                }
-
                 if (options.ProjectFile != null)
                 {
                     projectFile = options.ProjectFile;
                 }
             }
 
-            Console.WriteLine(projectFile);
+            PrintNorm("Getting Template Source Files From:" + projectFile);
 
+            PrintNorm("Saving Template Files");
             var fileNames = GetFileNames(projectFile, !projectFile.Contains(":\\"));
 
+            string functionsFile = "";
             foreach(var name in fileNames)
             {
-                Console.WriteLine(name);
+                if(name.Contains("Functions.cs"))
+                {
+                    functionsFile = name;
+                    break;
+                }
             }
 
             var remScripts = getRemoteScriptList();
-
-            foreach(var s in remScripts)
-            {
-                Console.WriteLine(s);
-            }
-
             var localScripts = getRemoteScriptList();
 
+            PrintNorm("Building Obfuscation Dictionary From: " + dictionaryFile);
             buildDictionary(dictionaryFile);
 
-            writeFunctionFile(remScripts, localScripts);
+            bool success = writeFunctionFile(functionsFile, remScripts, localScripts);
+
+            PrintNorm("Restoring Template Files and Deleting Temp Files");
+            restoreFiles();
+
+            if (success)
+            {
+                PrintNorm("Sucess! Run the PowerLine.exe Program");
+            }
+            else
+            {
+                PrintError("Build Errors Occured, Please Check the MSBuild Output");
+            }
 
         }
 
@@ -124,6 +125,7 @@ namespace PLBuilder
         static List<string> GetFileNames(string projectFile, bool relative)
         {
             List<string> fileNames = new List<string>();
+            _savedFiles = new List<string>();
 
             if (relative)
             {
@@ -131,21 +133,31 @@ namespace PLBuilder
                 projectFile = Path.GetFullPath(Path.Combine(folder, @projectFile));
             }
 
-            Console.WriteLine(projectFile);
-
             var fin = File.ReadAllLines(projectFile);
-            int lastIdx = projectFile.LastIndexOf('\\');
-            projectFile = projectFile.Substring(0, lastIdx + 1);
+
+            string projectFolder = Path.GetDirectoryName(projectFile);
+            _saveDir = Path.Combine(projectFolder, "plsave");
 
             foreach (var line in fin)
             {
                 if(line.Contains(".cs"))
                 {
-                    fileNames.Add( projectFile + line.Split('"')[1]);
+                    string fileNameCurr = line.Split('"')[1];
+                    string fileNamePath = Path.Combine(projectFolder, fileNameCurr);
+                    fileNames.Add(fileNamePath);
+
+                    string savePath = Path.Combine(_saveDir, fileNameCurr);
+                    string savePathFolder = Path.GetDirectoryName(savePath);
+                    if (!Directory.Exists(savePathFolder))
+                    {
+                        Directory.CreateDirectory(savePathFolder);
+                    }
+
+                    _savedFiles.Add(fileNamePath + "$$$" + savePath);
+
+                    File.Copy(fileNamePath, savePath, true);
                 }
             }
-
-            DirectoryCopy(projectFile, _outputFolder, true);
 
             return fileNames;
         }
@@ -215,19 +227,20 @@ namespace PLBuilder
             return scripts;
         }
 
-        static void writeFunctionFile(List<string> remScripts, List<string> localScripts)
+        static bool writeFunctionFile(string functionsFile, List<string> remScripts, List<string> localScripts)
         {
             //make this better at some point
-            var fin = System.IO.File.ReadAllLines(_outputFolder + "Functions.cs");
 
-            StreamWriter fout = new StreamWriter(_outputFolder + "Functions.cs");
+            var fin = System.IO.File.ReadAllLines(functionsFile);
+
+            StreamWriter fout = new StreamWriter(functionsFile, false);
 
             int idx = 0;
 
             foreach(var line in fin)
             {
                 idx++;
-                if(line.Contains("$$"))
+                if(line.Contains("$$$"))
                 {
                     break;
                 }
@@ -239,13 +252,16 @@ namespace PLBuilder
             byte dKey = Convert.ToByte( GetLetter() );
             fout.WriteLine("\t\t\tdKey = \'" + (char) dKey + "\';");
 
+            PrintNorm("Importing and Encoding Scripts");
+
             foreach(var script in remScripts)
             {
                 var scriptName = script.Substring(script.LastIndexOf('/') + 1);
                 using (var client = new WebClient())
                 {
-                    client.DownloadFile(new Uri(script), _outputFolder +  scriptName);
-                    Byte[] bytes = File.ReadAllBytes(_outputFolder + scriptName);
+                    Console.WriteLine("\t" + script + "\r\n");
+                    client.DownloadFile(new Uri(script), scriptName);
+                    Byte[] bytes = File.ReadAllBytes(scriptName);
 
                     //XOR "encrypt"
                     for(int i = 0; i < bytes.Length; i++)
@@ -274,28 +290,40 @@ namespace PLBuilder
             }
 
             fout.Close();
-            //string cmdStr = "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\MSBuild.exe /b ";
+
+            PrintNorm("Building PowerLine.exe");
+
             string currPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
-            string fullPath = Path.Combine(currPath, _outputFolder + "PowerLine.sln");
-            //cmdStr += " /t:rebuild /p:PlatformTarget = x64";
-            //Console.WriteLine(cmdStr);
+            string fullPath = Path.Combine(Path.GetDirectoryName(functionsFile), "PowerLineTemplate.sln");
+
+            Console.Out.Flush();
 
             Process cmd = new Process();
             cmd.StartInfo.FileName = "cmd.exe";
-            cmd.StartInfo.RedirectStandardInput = true;
+            cmd.StartInfo.Arguments = "/c " + @"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe " + fullPath + @" /t:rebuild /p:Configuration=Release /p:Platform=x64";
            // cmd.StartInfo.RedirectStandardOutput = true;
-           // cmd.StartInfo.RedirectStandardError = true;
-            //cmd.StartInfo.CreateNoWindow = true;
+            //cmd.StartInfo.RedirectStandardError = true;
             cmd.StartInfo.UseShellExecute = false;
             cmd.Start();
-            cmd.StandardInput.WriteLine(@"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe " + fullPath + @" /t:rebuild /p:PlatformTarget=x64");
-            //cmd.StandardInput.WriteLine(@"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe C:\Users\fmc\Source\Repos\powerline\PLWTF\PowerLine.sln /t:rebuild /p:PlatformTarget=x64");
-            cmd.StandardInput.Flush();
-            cmd.StandardInput.Close();
             cmd.WaitForExit();
-          //  Console.WriteLine(cmd.StandardOutput.ReadToEnd());
-          //  Console.WriteLine(cmd.StandardError.ReadToEnd());
 
+            return(cmd.ExitCode == 0);
+            //Console.WriteLine(cmd.StandardOutput.ReadToEnd());
+            //Console.WriteLine(cmd.StandardError.ReadToEnd());
+        }
+
+        public static void restoreFiles()
+        {
+            string[] splitVal = new string[] { "$$$" };
+            
+            foreach(var name in _savedFiles)
+            {
+                string destPath = name.Split(splitVal, StringSplitOptions.RemoveEmptyEntries)[0];
+                string srcPath = name.Split(splitVal, StringSplitOptions.RemoveEmptyEntries)[1];
+                File.Copy(srcPath, destPath, true);
+            }
+
+            Directory.Delete(_saveDir, true);
         }
 
         //https://stackoverflow.com/questions/15249138/pick-random-char
@@ -319,5 +347,23 @@ namespace PLBuilder
                 }
             }
         }
-    }
+
+        public static void PrintNorm(string msg)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+
+            Console.WriteLine("\r\n###### " + msg + " ######\r\n");
+
+            Console.ResetColor();
+        }
+
+        public static void PrintError(string msg)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+
+            Console.WriteLine("\r\n!!!!! " + msg + " !!!!!\r\n");
+
+            Console.ResetColor();
+        }
+}
 }
