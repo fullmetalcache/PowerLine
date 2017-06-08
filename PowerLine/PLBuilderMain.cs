@@ -302,9 +302,9 @@ namespace PLBuilder
 
             string buildTool = "";
 
-            if(File.Exists(@"C:\Windows\Microsoft.NET\Framework646\v2.0.50727\MSBuild.exe"))
+            if(File.Exists(@"C:\Windows\Microsoft.NET\Framework64\v2.0.50727\MSBuild.exe"))
             {
-                buildTool = @"C:\Windows\Microsoft.NET\Framework646\v2.0.50727\MSBuild.exe";
+                buildTool = @"C:\Windows\Microsoft.NET\Framework64\v2.0.50727\MSBuild.exe";
                 fullPath = Path.Combine(Path.GetDirectoryName(functionsFile), "PowerLineTemplateWin7.pln.sln");
             } else if(File.Exists(@"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe"))
             {
