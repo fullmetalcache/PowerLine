@@ -288,8 +288,8 @@ namespace PLBuilder
             //cmd.StartInfo.CreateNoWindow = true;
             cmd.StartInfo.UseShellExecute = false;
             cmd.Start();
-            //cmd.StandardInput.WriteLine(@"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe " + fullPath + @" /t:rebuild /p:PlatformTarget=x64");
-            cmd.StandardInput.WriteLine(@"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe C:\Users\fmc\Source\Repos\powerline\PLWTF\PowerLine.sln /t:rebuild /p:PlatformTarget=x64");
+            cmd.StandardInput.WriteLine(@"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe " + fullPath + @" /t:rebuild /p:PlatformTarget=x64");
+            //cmd.StandardInput.WriteLine(@"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe C:\Users\fmc\Source\Repos\powerline\PLWTF\PowerLine.sln /t:rebuild /p:PlatformTarget=x64");
             cmd.StandardInput.Flush();
             cmd.StandardInput.Close();
             cmd.WaitForExit();
