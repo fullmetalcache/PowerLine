@@ -42,13 +42,6 @@
     <Content Include="CleanVars.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="packages\CommandLineParser.1.9.71\lib\net35\CommandLine.dll" />
-    <Content Include="packages\CommandLineParser.1.9.71\lib\net35\CommandLine.xml" />
-    <Content Include="packages\CommandLineParser.1.9.71\lib\net40\CommandLine.dll" />
-    <Content Include="packages\CommandLineParser.1.9.71\lib\net40\CommandLine.xml" />
-    <Content Include="packages\CommandLineParser.1.9.71\lib\net45\CommandLine.dll" />
-    <Content Include="packages\CommandLineParser.1.9.71\lib\net45\CommandLine.xml" />
-    <Content Include="packages\CommandLineParser.1.9.71\readme.txt" />
     <Content Include="UserConf.xml">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -60,7 +53,6 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="packages\CommandLineParser.1.9.71\CommandLineParser.1.9.71.nupkg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
