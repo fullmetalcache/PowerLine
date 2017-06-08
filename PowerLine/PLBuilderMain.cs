@@ -260,6 +260,8 @@ namespace PLBuilder
                 string scriptName = script.Substring(script.LastIndexOf('/') + 1);
                 using (WebClient client = new WebClient())
                 {
+                    client.Proxy = WebRequest.GetSystemWebProxy();
+                    client.Proxy.Credentials = CredentialCache.DefaultCredentials;
                     using (MemoryStream mStream = new MemoryStream(client.DownloadData(new Uri(script))))
                     {
 
