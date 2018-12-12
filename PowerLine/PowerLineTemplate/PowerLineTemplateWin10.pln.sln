@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerLineTemplate", "PowerLineTemplate.csproj", "{A4990544-3228-4BB9-9651-B05F516E0B71}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerLineTemplate", "PowerLineTemplate10.csproj", "{A4990544-3228-4BB9-9651-B05F516E0B71}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
